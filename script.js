@@ -108,7 +108,7 @@ function checkAuthStatus() {
 }
 
 const activeApps = [  
-    { id: 58, name: "1. APNA COLLEGE", img: "https://i.postimg.cc/jS76CFc0/image-search-1783748117436.png", link: "https://apnacollgegpro.madxrohitbihar-1ce.workers.dev/" },  
+    { id: 58, name: "1. APNA COLLEGE", img: "https://i.postimg.cc/jS76CFc0/image-search-1783748117436.png", link: "#" },  
     { id: 1, name: "2. CAREER WILL", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSmYE_faasYwfAs0rQKDf4GcuoV7_Ws6ZUqWwmIpuHVSw&s", link: "https://sangam.free.nf/CW/course_index.html" },  
     { id: 19, name: "3. CDS JOURNEY", img: "https://i.postimg.cc/tRKNBNTh/image-search-1787230401173.webp", link: "https://cds.streamfiles.eu.org/" },
     { id: 6, name: "4. FUTUREKUL", img: "https://i.postimg.cc/CK0zWrN0/image-search-1784218678678.png", link: "https://futurekulpro.madxrohitbihar-1ce.workers.dev/" },  
