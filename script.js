@@ -30,31 +30,10 @@ function updateWatermarkColor(theme) {
 })();
 
 function openAroLinks() {
-    const apiToken = "0aa19e644db340e405f3b7654cdc70f70d705966";
-    const targetUrl = "https://newgetkey.madxrohitbihar-1ce.workers.dev/";
-    const apiUrl = `https://arolinks.com/api?api=${apiToken}&url=${encodeURIComponent(targetUrl)}`;
-
-    const msgDiv = document.getElementById("status-msg");
-    msgDiv.style.color = "var(--accent-gold)";
-    msgDiv.innerText = "Generating Link...";
-    showToast("Generating Access Link...");
-    
-    fetch(apiUrl)
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === "success" && data.shortenedUrl) {
-                window.location.href = data.shortenedUrl;
-            } else {
-                msgDiv.style.color = "#ff4444";
-                msgDiv.innerText = "Error generating link!";
-                showToast("Error generating link!");
-            }
-        })
-        .catch(() => {
-            msgDiv.style.color = "#ff4444";
-            msgDiv.innerText = "Network Error!";
-            showToast("Network Error!");
-        });
+    // Direct link open jab user Get Key par click karega
+    const targetUrl = "https://arolinks.com/3gwyAi";
+    showToast("Opening Key Link...");
+    window.open(targetUrl, '_blank');
 }
 
 function verifyUserKey() {
