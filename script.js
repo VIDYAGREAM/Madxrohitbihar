@@ -1,165 +1,205 @@
-function updateWatermarkColor(theme) {
-    const wm = document.getElementById('watermarkLayer');
-    let colorHex = "%2300f3ff"; 
-    let opacity = "0.08";
-    
-    if (theme === 'white') {
-        colorHex = "%230f172a"; 
-        opacity = "0.07";
-    } else if (theme === 'black') {
-        colorHex = "%23ffffff"; 
-        opacity = "0.09";
-    } else if (theme === 'gold') {
-        colorHex = "%23f59e0b";
-        opacity = "0.08";
-    }
-
-    wm.style.backgroundImage = `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='420' height='140'><text x='20' y='70' fill='${colorHex}' fill-opacity='${opacity}' font-size='13' font-weight='900' font-family='sans-serif' letter-spacing='2'>MODEDUZONE ✦ MADXROHITBIHAR</text></svg>")`;
-}
-
-(function() {
-    const savedTheme = localStorage.getItem('selectedPortalTheme') || 'gold';
-    if (savedTheme === 'white') {
-        document.body.classList.add('theme-white-mode');
-    } else if (savedTheme === 'black') {
-        document.body.classList.add('theme-black-mode');
-    } else if (savedTheme === 'gold') {
-        document.body.classList.add('theme-gold-mode');
-    }
-    updateWatermarkColor(savedTheme);
-})();
-
-function openAroLinks() {
-    // Direct link open jab user Get Key par click karega
-    const targetUrl = "https://arolinks.com/3gwyAi";
-    showToast("Opening Key Link...");
-    window.open(targetUrl, '_blank');
-}
-
-function verifyUserKey() {
-    const userKey = document.getElementById("accessKeyInput").value.trim().toUpperCase();
-    const msgDiv = document.getElementById("status-msg");
-    
-    const targetLen = 33; 
-    if (userKey.length !== targetLen || !userKey.startsWith("MAD") || !userKey.endsWith("AAP")) {
-        msgDiv.style.color = "#ff4444";
-        msgDiv.innerText = "⚠ Invalid key format!";
-        showToast("⚠️ Invalid key format!");
-        return;
-    }
-
-    let usedKeys = JSON.parse(localStorage.getItem("usedKeysRegistry")) || {};
-    const currentTime = new Date().getTime();
-
-    if (usedKeys[userKey]) {
-        msgDiv.style.color = "#ff4444";
-        msgDiv.innerText = "⚠️ This key has already been used! Please get a new key.";
-        showToast("⚠️ Key already used! Get a new key");
-        return;
-    }
-
-    usedKeys[userKey] = currentTime;
-    localStorage.setItem("usedKeysRegistry", JSON.stringify(usedKeys));
-
-    const keyExpiryDuration = 24 * 60 * 60 * 1000;
-    const globalExpiryTime = currentTime + keyExpiryDuration; 
-    localStorage.setItem("appAuthExpiry", globalExpiryTime);
-    
-    msgDiv.style.color = "var(--neon-green)";
-    msgDiv.innerText = "Portal Unlocked Successfully!";
-    showToast("Portal Unlocked Successfully!");
-
-    setTimeout(() => {
-        document.getElementById("authScreenWrapper").style.display = "none";
-    }, 600);
-}
-
-function checkAuthStatus() {
-    const expiryTime = localStorage.getItem("appAuthExpiry");
-    const currentTime = new Date().getTime();
-    const isVerified = expiryTime && currentTime < expiryTime;
-
-    if (isVerified) {
-        document.getElementById('authScreenWrapper').style.display = 'none';
-    } else {
-        document.getElementById('authScreenWrapper').style.display = 'flex';
-    }
-}
-
 const activeApps = [  
-    { id: 58, name: "1. APNA COLLEGE", img: "https://i.postimg.cc/jS76CFc0/image-search-1783748117436.png", link: "https://apnacollgegpro.madxrohitbihar-1ce.workers.dev/" },  
-    { id: 1, name: "2. CAREER WILL", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSmYE_faasYwfAs0rQKDf4GcuoV7_Ws6ZUqWwmIpuHVSw&s", link: "https://sangam.free.nf/CW/course_index.html" },  
-    { id: 19, name: "3. CDS JOURNEY", img: "https://i.postimg.cc/tRKNBNTh/image-search-1787230401173.webp", link: "https://cds.streamfiles.eu.org/" },
-    { id: 6, name: "4. FUTUREKUL", img: "https://i.postimg.cc/CK0zWrN0/image-search-1784218678678.png", link: "https://futurekulpro.madxrohitbihar-1ce.workers.dev/" },  
-    { id: 10, name: "5. IFAS ACADEMY", img: "https://i.postimg.cc/XJdZmMRz/image-search-1784219774648.png", link: "https://sangam.free.nf/IFAS/" },  
-    { id: 60, name: "6. MAGNET BRAIN", img: "https://i.postimg.cc/J4VMkfDz/image-search-1788171765952.png", link: "https://www.magnetbrains.com/" },  
-    { id: 72, name: "7. MISSION JEET", img: "https://i.postimg.cc/V6j70XqJ/image-search-1792039762960.png", link: "https://missionjeet.madxrohitbihar-1ce.workers.dev/" },
-    { id: 13, name: "8. NEXT TOPPERS", img: "https://i.postimg.cc/PqjZCyfr/image-search-1785225080041.jpg", link: "https://nexttopperspro.madxrohitbihar-1ce.workers.dev/" },  
-    { id: 101, name: "9. PARMAR Academy", img: "https://i.postimg.cc/sxYz6q2p/image-search-1792562519230.webp", link: "https://parmar.madxrohitbihar-1ce.workers.dev/" },
-    { id: 105, name: "10. PARMAR Academy 2", img: "https://i.postimg.cc/65gXYjC5/image-search-1793367333359.jpg", link: "https://modeduzone.netlify.app/" },
-    { id: 100, name: "11. PHYSICS WALLAH", img: "https://i.postimg.cc/ZRMVR91P/image-search-1791519463252.webp", link: "https://physicspro.madxrohitbihar-1ce.workers.dev/" },
-    { id: 102, name: "12. PHYSICS PI", img: "https://i.postimg.cc/ZRMVR91P/image-search-1791519463252.webp", link: "http://pi.studyparcham.site" },
-    { id: 20, name: "13. RG VIKRAMJEET", img: "https://i.postimg.cc/cLqhCJVD/image-search-1791011678203.png", link: "https://learnbyakp.site/vikaram" },
-    { id: 4, name: "14. ROJGAR WITH ANKIT", img: "https://i.postimg.cc/fTfdSHbT/image-search-1783668281136.png", link: "https://ais-pre-puxho4o57upkknekv3mgg7-49225910278.asia-east1.run.app/" },  
-    { id: 3, name: "15. SELECTION WAY", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRquIqVyakcgsPuAsFkSm34nPLKZ_IY2W0-Rj5sd1-T-g&s=10", link: "https://selectionway.madxrohitbihar-1ce.workers.dev/" },  
-    { id: 59, name: "16. STUDY IQ", img: "https://i.postimg.cc/850xN6Wz/image-search-1788171724038.jpg", link: "https://spidyiq.vercel.app/" },  
-    { id: 8, name: "17. TEST SERIES", img: "https://i.postimg.cc/Bb9C4KYz/image-search-1785225815998.png", link: "https://repeatermock.com/" },  
-    { id: 12, name: "18. UNACADEMY", img: "https://i.postimg.cc/Wz6xPX4L/image-search-1785224943445.jpg", link: "https://unacdemy-pro1.madxrohitbihar-1ce.workers.dev/" },  
-    { id: 71, name: "19. UNACADEMY ONLINE", img: "https://i.postimg.cc/Wz6xPX4L/image-search-1785224943445.jpg", link: "https://unacdemypro.madxrohitbihar-1ce.workers.dev/" },
-    { id: 17, name: "20. VIBRANT ACADEMY", img: "https://i.postimg.cc/mgx3mfCs/image-search-1785251111107.png", link: "https://learnbyakp.site/vibrant" },  
-    { id: 61, name: "21. VIDYAKHUL", img: "https://i.postimg.cc/9Qr5MJ2g/image-search-1787482867101.png", link: "https://vidyakool.streamfiles.eu.org/" }
+    { id: 58, name: "1. APNA COLLEGE", tag: "Coding & tech", img: "https://i.postimg.cc/jS76CFc0/image-search-1783748117436.png", link: "https://apnacollgegpro.madxrohitbihar-1ce.workers.dev/" },  
+    { id: 1, name: "2. CAREER WILL", tag: "Competitive exams", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSmYE_faasYwfAs0rQKDf4GcuoV7_Ws6ZUqWwmIpuHVSw&s", link: "https://sangam.free.nf/CW/course_index.html" },  
+    { id: 19, name: "3. CDS JOURNEY", tag: "Defence exam study", img: "https://i.postimg.cc/tRKNBNTh/image-search-1787230401173.webp", link: "https://cds.streamfiles.eu.org/" },
+    { id: 6, name: "4. FUTUREKUL", tag: "Expert faculty classes", img: "https://i.postimg.cc/CK0zWrN0/image-search-1784218678678.png", link: "https://futurekulpro.madxrohitbihar-1ce.workers.dev/" },  
+    { id: 10, name: "5. IFAS ACADEMY", tag: "CSIR NET & GATE", img: "https://i.postimg.cc/XJdZmMRz/image-search-1784219774648.png", link: "https://sangam.free.nf/IFAS/" },  
+    { id: 2, name: "6. KHAN GLOBAL STUDIES", tag: "GS & competitive", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTuCiwfy76ica73byqKIURXqN2Zi2h2Sdw0VJooGkXsyg&s", link: "https://www.study-mate.in/batches" },
+    { id: 60, name: "7. MAGNET BRAIN", tag: "Free school education", img: "https://i.postimg.cc/J4VMkfDz/image-search-1788171765952.png", link: "https://www.magnetbrains.com/" },  
+    { id: 72, name: "8. MISSION JEET", tag: "Targeted exam batches", img: "https://i.postimg.cc/V6j70XqJ/image-search-1792039762960.png", link: "https://missionjeet.madxrohitbihar-1ce.workers.dev/" },
+    { id: 13, name: "9. NEXT TOPPERS", tag: "Focused fast batches", img: "https://i.postimg.cc/PqjZCyfr/image-search-1785225080041.jpg", link: "https://nexttopperspro.madxrohitbihar-1ce.workers.dev/" },  
+    { id: 101, name: "10. PARMAR ACADEMY", tag: "SSC & Railway prep", img: "https://i.postimg.cc/sxYz6q2p/image-search-1792562519230.webp", link: "https://parmar.madxrohitbihar-1ce.workers.dev/" },
+    { id: 105, name: "11. PARMAR ACADEMY 2", tag: "SSC & Railway prep 2", img: "https://i.postimg.cc/65gXYjC5/image-search-1793367333359.jpg", link: "https://modeduzone.netlify.app/" },
+    { id: 102, name: "12. PHYSICS PI", tag: "Conceptual courses", img: "https://i.postimg.cc/ZRMVR91P/image-search-1791519463252.webp", link: "http://pi.studyparcham.site" },
+    { id: 100, name: "13. PHYSICS WALLAH", tag: "Premium batches & tests", img: "https://i.postimg.cc/ZRMVR91P/image-search-1791519463252.webp", link: "https://physicspro.madxrohitbihar-1ce.workers.dev/" },
+    { id: 20, name: "14. RG VIKRAMJEET", tag: "Maths & reasoning", img: "https://i.postimg.cc/cLqhCJVD/image-search-1791011678203.png", link: "https://learnbyakp.site/vikaram" },
+    { id: 4, name: "15. ROJGAR WITH ANKIT", tag: "Affordable exam prep", img: "https://i.postimg.cc/fTfdSHbT/image-search-1783668281136.png", link: "https://ais-pre-puxho4o57upkknekv3mgg7-49225910278.asia-east1.run.app/" },  
+    { id: 3, name: "16. SELECTION WAY", tag: "Dedicated selection classes", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRquIqVyakcgsPuAsFkSm34nPLKZ_IY2W0-Rj5sd1-T-g&s=10", link: "https://selectionway.madxrohitbihar-1ce.workers.dev/" },  
+    { id: 59, name: "17. STUDY IQ", tag: "UPSC & Civil services", img: "https://i.postimg.cc/850xN6Wz/image-search-1788171724038.jpg", link: "https://spidyiq.vercel.app/" },  
+    { id: 8, name: "18. TEST SERIES", tag: "Mock tests & practice", img: "https://i.postimg.cc/Bb9C4KYz/image-search-1785225815998.png", link: "https://repeatermock.com/" },  
+    { id: 12, name: "19. UNACADEMY", tag: "Comprehensive learning", img: "https://i.postimg.cc/Wz6xPX4L/image-search-1785224943445.jpg", link: "https://unacdemy-pro1.madxrohitbihar-1ce.workers.dev/" },  
+    { id: 71, name: "20. UNACADEMY ONLINE", tag: "Live interactive classes", img: "https://i.postimg.cc/Wz6xPX4L/image-search-1785224943445.jpg", link: "https://unacdemypro.madxrohitbihar-1ce.workers.dev/" },
+    { id: 17, name: "21. VIBRANT ACADEMY", tag: "JEE advanced coaching", img: "https://i.postimg.cc/mgx3mfCs/image-search-1785251111107.png", link: "https://learnbyakp.site/vibrant" },  
+    { 
+        id: 108, 
+        name: "22. VIDYAGRAM", 
+        tag: "Online learning platform", 
+        img: "https://i.postimg.cc/PqbrQWnH/image-search-1791123215735.png", 
+        link: "https://studybeepro.site/vidyagram/",
+        servers: [
+            { name: "Server 1", url: "https://studybeepro.site/vidyagram/" },
+            { name: "Server 2", url: "https://ais-pre-a5hvjqc66aerxlyco5jzkx-49225910278.asia-east1.run.app/" }
+        ]
+    },
+    { id: 61, name: "23. VIDYAKHUL", tag: "Online school boards", img: "https://i.postimg.cc/9Qr5MJ2g/image-search-1787482867101.png", link: "https://vidyakool.streamfiles.eu.org/" }
 ];  
 
-const upcomingApps = [];  
 let favorites = JSON.parse(localStorage.getItem('userFavs')) || [];  
+let currentFilter = 'all';
 
-function openExternal(url, elementId) {
-    if (elementId) {
-        const card = document.getElementById(`app-card-${elementId}`);
-        if (card) {
-            document.querySelectorAll('.app-card').forEach(c => c.classList.remove('app-clicked'));
-            card.classList.add('app-clicked');
+function initServerModal() {
+    if (document.getElementById('serverSelectModal')) return;
+
+    const style = document.createElement('style');
+    style.textContent = `
+        #serverSelectModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(4px);
+            z-index: 99999;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
         }
-    }
-    let finalUrl = url;
-    if (url.includes("youtu.be/") || url.includes("youtube.com/")) {
-        const separator = url.includes("?") ? "&" : "?";
-        finalUrl = `${url}${separator}vq=hd2160`; 
-    }
-    window.open(finalUrl, '_blank');
+        #serverSelectModal.show {
+            display: flex;
+        }
+        .server-box {
+            width: 100%;
+            max-width: 340px;
+            background: #0d1424;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            padding: 20px;
+            color: #ffffff;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            animation: serverPop 0.18s ease-out;
+        }
+        @keyframes serverPop {
+            from { transform: scale(0.94); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .server-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .server-header img {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            object-fit: cover;
+            background: #162038;
+        }
+        .server-title {
+            font-size: 16px;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+        .server-sub {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 2px;
+        }
+        .server-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .server-btn {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            background: #152036;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: background 0.15s ease, border-color 0.15s ease;
+        }
+        .server-btn:hover {
+            background: #1e2e4d;
+            border-color: #3b82f6;
+        }
+        .server-cancel {
+            margin-top: 12px;
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            background: transparent;
+            color: #94a3b8;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .server-cancel:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.06);
+        }
+    `;
+    document.head.appendChild(style);
+
+    const modal = document.createElement('div');
+    modal.id = 'serverSelectModal';
+    modal.innerHTML = `
+        <div class="server-box" onclick="event.stopPropagation()">
+            <div class="server-header">
+                <img id="serverModalIcon" src="" alt="">
+                <div>
+                    <div id="serverModalTitle" class="server-title"></div>
+                    <div class="server-sub">Select a server to open</div>
+                </div>
+            </div>
+            <div id="serverModalList" class="server-list"></div>
+            <button type="button" class="server-cancel" onclick="closeServerModal()">Cancel</button>
+        </div>
+    `;
+    modal.addEventListener('click', closeServerModal);
+    document.body.appendChild(modal);
 }
 
-function handleAppClick(appId) {
-    const app = activeApps.concat(upcomingApps).find(a => a.id === appId);
-    if (!app) return;
+function openServerModal(app) {
+    initServerModal();
+    const modal = document.getElementById('serverSelectModal');
+    const title = document.getElementById('serverModalTitle');
+    const icon = document.getElementById('serverModalIcon');
+    const list = document.getElementById('serverModalList');
 
-    const card = document.getElementById(`app-card-${appId}`);
-    if (card) {
-        document.querySelectorAll('.app-card').forEach(c => c.classList.remove('app-clicked'));
-        card.classList.add('app-clicked');
-    }
+    title.innerText = app.name;
+    icon.src = app.img || 'https://via.placeholder.com/44/0d1424/fff?text=App';
+    icon.onerror = function() {
+        this.src = 'https://via.placeholder.com/44/0d1424/fff?text=App';
+    };
 
-    if (app.isMultiServer) {
-        document.getElementById('modalAppTitle').innerText = app.name;
-        const listContainer = document.getElementById('serverOptionsList');
-        listContainer.innerHTML = app.servers.map(server => `
-            <div class="server-opt-btn" onclick="openExternal('${server.link}', ${appId}); closeServerModal();">
-                <span><i class="fa-solid fa-server" style="color:var(--accent-cyan); margin-right:8px;"></i> ${server.name}</span>
-                <i class="fa-solid fa-arrow-right" style="color:var(--text-secondary);"></i>
-            </div>
-        `).join('');
-        document.getElementById('serverModal').style.display = 'flex';
-    } else {
-        openExternal(app.link, appId);
-    }
+    list.innerHTML = app.servers.map((srv, idx) => `
+        <button type="button" class="server-btn" onclick="selectServer('${encodeURIComponent(srv.url)}')">
+            <span>${srv.name || `Server ${idx + 1}`}</span>
+            <span>Open &rarr;</span>
+        </button>
+    `).join('');
+
+    modal.classList.add('show');
+}
+
+function selectServer(encodedUrl) {
+    const url = decodeURIComponent(encodedUrl);
+    closeServerModal();
+    window.open(url, '_blank');
 }
 
 function closeServerModal() {
-    document.getElementById('serverModal').style.display = 'none';
+    const modal = document.getElementById('serverSelectModal');
+    if (modal) {
+        modal.classList.remove('show');
+    }
 }
 
-function closeServerModalOnOuter(e) {
-    if (e.target.id === 'serverModal') closeServerModal();
+function openApp(id) {
+    const app = activeApps.find(a => a.id === id);
+    if (!app) return;
+
+    if (app.servers && app.servers.length > 1) {
+        openServerModal(app);
+    } else {
+        window.open(app.link, '_blank');
+    }
 }
 
 function showToast(msg) {  
@@ -169,62 +209,41 @@ function showToast(msg) {
     setTimeout(() => toast.classList.remove('show'), 2000);  
 }  
 
-function openNotifications() { document.getElementById('notificationModal').style.display = 'flex'; }
-function closeNotifications() { document.getElementById('notificationModal').style.display = 'none'; }
-function toggleThemeDrawer() {
-    const modal = document.getElementById('themeDrawerModal');
-    modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
-}
-function closeThemeDrawerOnOuter(e) { if (e.target.id === 'themeDrawerModal') toggleThemeDrawer(); }
-
-function setAppTheme(themeName) {
-    document.body.classList.remove('theme-white-mode', 'theme-black-mode', 'theme-gold-mode');
-    
-    if (themeName === 'white') {
-        document.body.classList.add('theme-white-mode');
-        showToast("White Theme Activated!");
-    } else if (themeName === 'black') {
-        document.body.classList.add('theme-black-mode');
-        showToast("Black Theme Activated!");
-    } else if (themeName === 'gold') {
-        document.body.classList.add('theme-gold-mode');
-        showToast("Neon Gold Theme Activated!");
-    } else {
-        showToast("Neon Cyberpunk Theme Activated!");
-    }
-    
-    updateWatermarkColor(themeName);
-    localStorage.setItem('selectedPortalTheme', themeName);
-    setTimeout(() => toggleThemeDrawer(), 250);
-}
-
 function renderApps() {  
     const activeContainer = document.getElementById('active-apps-list');  
     document.getElementById('active-count').innerText = `${activeApps.length} Available`;  
 
     activeContainer.innerHTML = activeApps.map(app => `  
-        <div class="app-card" id="app-card-${app.id}" data-name="${app.name.toLowerCase()}">  
-            <div class="app-info" onclick="handleAppClick(${app.id})">  
-                <img src="${app.img}" class="app-icon" alt="${app.name}" onerror="this.src='https://via.placeholder.com/48/0d1424/fff?text=App'">  
-                <div class="app-details">  
-                    <span class="app-name">${app.name}</span>  
-                    <span class="app-tag">${app.isMultiServer ? 'Multiple Server Active' : 'Free Server Active'}</span>  
-                </div>  
-            </div>  
-            <div class="app-actions">  
-                <button class="fav-btn ${favorites.includes(app.id) ? 'active' : ''}" onclick="toggleFavorite(${app.id})">  
-                    <i class="fa-${favorites.includes(app.id) ? 'solid' : 'regular'} fa-heart"></i>  
-                </button>  
-                <span onclick="handleAppClick(${app.id})" class="open-btn">Open</span>  
+        <div class="app-card" onclick="openApp(${app.id})" data-name="${app.name.toLowerCase()}" data-category="${getAppCategory(app.name)}">  
+            <button class="fav-btn ${favorites.includes(app.id) ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorite(${app.id})">  
+                <i class="fa-${favorites.includes(app.id) ? 'solid' : 'regular'} fa-heart"></i>  
+            </button>  
+            <img src="${app.img}" class="app-icon" alt="${app.name}" onerror="this.src='https://via.placeholder.com/48/0d1424/fff?text=App'">  
+            <div class="app-details">  
+                <span class="app-name">${app.name}</span>  
+                <span class="app-tag">${app.tag || ''}</span>  
             </div>  
         </div>  
     `).join('');  
-
-    const upcomingContainer = document.getElementById('upcoming-apps-list');  
-    document.getElementById('upcoming-count').innerText = `${upcomingApps.length} Coming Soon`;  
-    upcomingContainer.innerHTML = upcomingApps.length > 0 ? '' : `<div class="no-data">No upcoming apps available.</div>`;  
+      
     renderFavorites();  
+    filterApps();
 }  
+
+function getAppCategory(name) {
+    const n = name.toUpperCase();
+    if (n.includes('PHYSICS') || n.includes('APNA') || n.includes('VIBRANT') || n.includes('IFAS')) return 'jee';
+    if (n.includes('CAREER') || n.includes('PARMAR') || n.includes('RG') || n.includes('STUDY IQ') || n.includes('KHAN')) return 'govt';
+    if (n.includes('MAGNET') || n.includes('VIDYAKHUL') || n.includes('VIDYAGRAM')) return 'board';
+    return 'govt';
+}
+
+function filterCategory(category, element) {
+    currentFilter = category;
+    document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    element.classList.add('active');
+    filterApps();
+}
 
 function toggleFavorite(id) {  
     if (favorites.includes(id)) {  
@@ -240,23 +259,22 @@ function toggleFavorite(id) {
 
 function renderFavorites() {  
     const favContainer = document.getElementById('favorites-apps-list');  
-    const favApps = activeApps.concat(upcomingApps).filter(app => favorites.includes(app.id));  
+    const favApps = activeApps.filter(app => favorites.includes(app.id));  
+      
     if (favApps.length === 0) {  
         favContainer.innerHTML = `<div class="no-data">No favorite apps saved yet.</div>`;  
         return;  
     }  
+
     favContainer.innerHTML = favApps.map(app => `  
-        <div class="app-card" id="fav-card-${app.id}">  
-            <div class="app-info" onclick="handleAppClick(${app.id})">  
-                <img src="${app.img}" class="app-icon" alt="${app.name}" onerror="this.src='https://via.placeholder.com/48/0d1424/fff?text=App'">  
-                <div class="app-details">  
-                    <span class="app-name">${app.name}</span>  
-                    <span class="app-tag">Saved Item</span>  
-                </div>  
-            </div>  
-            <div class="app-actions">  
-                <button class="fav-btn active" onclick="toggleFavorite(${app.id})"><i class="fa-solid fa-heart"></i></button>  
-                <span onclick="handleAppClick(${app.id})" class="open-btn">Open</span>  
+        <div class="app-card" onclick="openApp(${app.id})">  
+            <button class="fav-btn active" onclick="event.stopPropagation(); toggleFavorite(${app.id})">  
+                <i class="fa-solid fa-heart"></i>  
+            </button>  
+            <img src="${app.img}" class="app-icon" alt="${app.name}" onerror="this.src='https://via.placeholder.com/48/0d1424/fff?text=App'">  
+            <div class="app-details">  
+                <span class="app-name">${app.name}</span>  
+                <span class="app-tag">${app.tag || ''}</span>  
             </div>  
         </div>  
     `).join('');  
@@ -265,58 +283,65 @@ function renderFavorites() {
 function switchTab(tabName, element) {  
     document.querySelectorAll('.bottom-nav .nav-item').forEach(item => item.classList.remove('active'));  
     if(element) element.classList.add('active');  
-    ['apps', 'upcoming', 'favorites'].forEach(tab => {  
-        const targetTab = document.getElementById(`tab-${tab}`);
-        if (targetTab) targetTab.classList.add('hidden');  
+
+    ['apps', 'favorites'].forEach(tab => {  
+        document.getElementById(`tab-${tab}`).classList.add('hidden');  
     });  
+
     document.getElementById(`tab-${tabName}`).classList.remove('hidden');  
     window.scrollTo({ top: 0, behavior: 'smooth' });  
+    
     sessionStorage.setItem('currentActiveTab', tabName);
 }  
 
 function filterApps() {  
     const query = document.getElementById('searchInput').value.toLowerCase();  
-    document.querySelectorAll('.app-card').forEach(card => {  
+    document.querySelectorAll('#active-apps-list .app-card').forEach(card => {  
         const name = card.getAttribute('data-name');  
-        card.style.display = (name && name.includes(query)) ? 'flex' : 'none';  
-    });  
+        const category = card.getAttribute('data-category');
+        const matchesQuery = name && name.includes(query);
+        const matchesCategory = (currentFilter === 'all' || category === currentFilter);
+        
+        card.style.display = (matchesQuery && matchesCategory) ? 'flex' : 'none';  
+    });
 }  
 
-document.addEventListener("contextmenu", (e) => e.preventDefault());
-
-window.addEventListener('pageshow', function(event) {
-    checkAuthStatus();
+document.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+    return false;
 });
 
 document.addEventListener("DOMContentLoaded", () => {  
+    initServerModal();
     const splash = document.getElementById("splash-screen");  
+      
     if (!sessionStorage.getItem('splashShown')) {  
         setTimeout(() => {  
             splash.classList.add("hide-splash");  
             sessionStorage.setItem('splashShown', 'true');  
-
-            if (!sessionStorage.getItem('popupShownOnce')) {
-                document.getElementById('popupModal').style.display = 'flex';
-            }
         }, 4000);  
     } else {  
         splash.style.display = 'none';  
-        checkAuthStatus();
     }  
 
-    setTimeout(() => {
-        renderApps();
-    }, 1200);
+    if (!sessionStorage.getItem('popupShown')) {
+        setTimeout(() => {  
+            document.getElementById('popupModal').style.display = 'flex';  
+        }, 500);
+    }
 
     const savedTab = sessionStorage.getItem('currentActiveTab');
     if (savedTab) {
         const targetNav = document.getElementById(`nav-${savedTab}`);
-        if (targetNav) switchTab(savedTab, targetNav);
+        if (targetNav) {
+            switchTab(savedTab, targetNav);
+        }
     }
 });  
 
 function closePopup() {  
     document.getElementById('popupModal').style.display = 'none';  
-    sessionStorage.setItem('popupShownOnce', 'true');
-    checkAuthStatus();
-}
+    sessionStorage.setItem('popupShown', 'true'); 
+}  
+
+renderApps();
