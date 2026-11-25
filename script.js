@@ -1,3 +1,113 @@
+function updateWatermarkColor(theme) {
+    const wm = document.getElementById('watermarkLayer');
+    let colorHex = "%2300f3ff";
+    let opacity = "0.08";
+
+    if (theme === 'white') {
+        colorHex = "%230f172a";
+        opacity = "0.07";
+    } else if (theme === 'black') {
+        colorHex = "%23ffffff";
+        opacity = "0.09";
+    } else if (theme === 'gold') {
+        colorHex = "%23f59e0b";
+        opacity = "0.08";
+    }
+
+    if (wm) {
+        wm.style.backgroundImage = `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='420' height='140'><text x='20' y='70' fill='${colorHex}' fill-opacity='${opacity}' font-size='13' font-weight='900' font-family='sans-serif' letter-spacing='2'>MODEDUZONE ✦ MADXROHITBIHAR</text></svg>")`;
+    }
+}
+
+(function() {
+    const savedTheme = localStorage.getItem('selectedPortalTheme') || 'gold';
+    if (savedTheme === 'white') {
+        document.body.classList.add('theme-white-mode');
+    } else if (savedTheme === 'black') {
+        document.body.classList.add('theme-black-mode');
+    } else if (savedTheme === 'gold') {
+        document.body.classList.add('theme-gold-mode');
+    }
+    updateWatermarkColor(savedTheme);
+})();
+
+function openAroLinks() {
+    const apiToken = "0aa19e644db340e405f3b7654cdc70f70d705966";
+    const targetUrl = "https://madxkey.madxrohitbihar-1ce.workers.dev/";
+    const apiUrl = `https://arolinks.com/api?api=${apiToken}&url=${encodeURIComponent(targetUrl)}`;
+
+    const msgDiv = document.getElementById("status-msg");
+    msgDiv.style.color = "var(--accent-gold)";
+    msgDiv.innerText = "Generating Link...";
+    showToast("Generating Access Link...");
+
+    fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "success" && data.shortenedUrl) {
+                window.location.href = data.shortenedUrl;
+            } else {
+                msgDiv.style.color = "#ff4444";
+                msgDiv.innerText = "Error generating link!";
+                showToast("Error generating link!");
+            }
+        })
+        .catch(() => {
+            msgDiv.style.color = "#ff4444";
+            msgDiv.innerText = "Network Error!";
+            showToast("Network Error!");
+        });
+}
+
+function verifyUserKey() {
+    const userKey = document.getElementById("accessKeyInput").value.trim().toUpperCase();
+    const msgDiv = document.getElementById("status-msg");
+
+    const targetLen = 33;
+    if (userKey.length !== targetLen || !userKey.startsWith("MAD") || !userKey.endsWith("APN")) {
+        msgDiv.style.color = "#ff4444";
+        msgDiv.innerText = "⚠ Invalid key format!";
+        showToast("⚠️ Invalid key format!");
+        return;
+    }
+
+    let usedKeys = JSON.parse(localStorage.getItem("usedKeysRegistry")) || {};
+    const currentTime = new Date().getTime();
+
+    if (usedKeys[userKey]) {
+        msgDiv.style.color = "#ff4444";
+        msgDiv.innerText = "⚠️ This key has already been used! Please get a new key.";
+        showToast("⚠️ Key already used! Get a new key");
+        return;
+    }
+
+    usedKeys[userKey] = currentTime;
+    localStorage.setItem("usedKeysRegistry", JSON.stringify(usedKeys));
+
+    const keyExpiryDuration = 24 * 60 * 60 * 1000;
+    const globalExpiryTime = currentTime + keyExpiryDuration;
+    localStorage.setItem("appAuthExpiry", globalExpiryTime);
+
+    msgDiv.style.color = "var(--neon-green)";
+    msgDiv.innerText = "Portal Unlocked Successfully!";
+    showToast("Portal Unlocked Successfully!");
+
+    setTimeout(() => {
+        document.getElementById("authScreenWrapper").style.display = "none";
+    }, 600);
+}
+
+function checkAuthStatus() {
+    const expiryTime = localStorage.getItem("appAuthExpiry");
+    const currentTime = new Date().getTime();
+    const isVerified = expiryTime && currentTime < expiryTime;
+
+    const authWrapper = document.getElementById('authScreenWrapper');
+    if (authWrapper) {
+        authWrapper.style.display = isVerified ? 'none' : 'flex';
+    }
+}
+
 const activeApps = [
     { id: 58, name: "1. APNA COLLEGE", tag: "Coding & tech", img: "https://i.postimg.cc/jS76CFc0/image-search-1783748117436.png", link: "https://ac.spidystudy.eu.cc/" },
     { id: 1, name: "2. CAREER WILL", tag: "Competitive exams", img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSmYE_faasYwfAs0rQKDf4GcuoV7_Ws6ZUqWwmIpuHVSw&s", link: "https://sangam.free.nf/CW/course_index.html" },
@@ -12,7 +122,7 @@ const activeApps = [
     { id: 102, name: "11. PHYSICS PI", tag: "Conceptual courses", img: "https://i.postimg.cc/ZRMVR91P/image-search-1791519463252.webp", link: "http://pi.studyparcham.site" },
     { id: 100, name: "12. PHYSICS WALLAH", tag: "Premium batches & tests", img: "https://i.postimg.cc/ZRMVR91P/image-search-1791519463252.webp", link: "https://physicspro.madxrohitbihar-1ce.workers.dev/" },
     { id: 20, name: "13. RG VIKRAMJEET", tag: "Maths & reasoning", img: "https://i.postimg.cc/cLqhCJVD/image-search-1791011678203.png", link: "https://learnbyakp.site/vikaram" },
-    { id: 4, name: "14. ROJGAR WITH ANKIT", tag: "Affordable exam prep", img: "https://i.postimg.cc/fTfdSHbT/image-search-1783668281136.png", link: "https://rwa.spidystudy.eu.cc/" },
+    { id: 4, name: "14. ROJGAR WITH ANKIT", tag: "Affordable exam prep", img: "https://i.postimg.cc/fTfdSHbT/image-search-1783668281136.png", link: "https://ais-pre-puxho4o57upkknekv3mgg7-49225910278.asia-east1.run.app/" },
     {
         id: 3,
         name: "15. SELECTION WAY",
@@ -20,181 +130,163 @@ const activeApps = [
         img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRquIqVyakcgsPuAsFkSm34nPLKZ_IY2W0-Rj5sd1-T-g&s=10",
         link: "https://selectionway.madxrohitbihar-1ce.workers.dev/",
         servers: [
-            { name: "Server 1 (Fast)", url: "https://selectionway.madxrohitbihar-1ce.workers.dev/" },
-            { name: "Server 2 (Backup)", url: "https://selection-way2.madxrohitbihar-1ce.workers.dev/" }
+            { name: "Server 1", url: "https://selectionway.madxrohitbihar-1ce.workers.dev/" },
+            { name: "Server 2", url: "https://selection-way2.madxrohitbihar-1ce.workers.dev/" }
         ]
     },
-    { id: 59, name: "16. STUDY IQ", tag: "UPSC & Civil services", img: "https://i.postimg.cc/850xN6Wz/image-search-1788171724038.jpg", link: "https://spidyiq.vercel.app/" },
-    { id: 109, name: "17. TEST RANKING", tag: "Online mock tests & quizzes", img: "https://i.postimg.cc/DyrjSJyL/image-search-1795490544628.png", link: "https://test-ranking.madxrohitbihar-1ce.workers.dev/" },
-    { id: 8, name: "18. TEST SERIES", tag: "Mock tests & practice", img: "https://i.postimg.cc/Bb9C4KYz/image-search-1785225815998.png", link: "https://repeatermock.com/" },
-    { id: 12, name: "19. UNACADEMY", tag: "Comprehensive learning", img: "https://i.postimg.cc/Wz6xPX4L/image-search-1785224943445.jpg", link: "https://unacdemy-pro1.madxrohitbihar-1ce.workers.dev/" },
-    { id: 71, name: "20. UNACADEMY ONLINE", tag: "Live interactive classes", img: "https://i.postimg.cc/Wz6xPX4L/image-search-1785224943445.jpg", link: "https://unacdemypro.madxrohitbihar-1ce.workers.dev/" },
-    { id: 17, name: "21. VIBRANT ACADEMY", tag: "JEE advanced coaching", img: "https://i.postimg.cc/mgx3mfCs/image-search-1785251111107.png", link: "https://learnbyakp.site/vibrant" },
-    { id: 61, name: "22. VIDYAKHUL", tag: "Online school boards", img: "https://i.postimg.cc/9Qr5MJ2g/image-search-1787482867101.png", link: "https://vidyakool.streamfiles.eu.org/" }
+    { id: 8, name: "16. TEST SERIES", tag: "Mock tests & practice", img: "https://i.postimg.cc/Bb9C4KYz/image-search-1785225815998.png", link: "https://repeatermock.com/" },
+    { id: 12, name: "17. UNACADEMY", tag: "Comprehensive learning", img: "https://i.postimg.cc/Wz6xPX4L/image-search-1785224943445.jpg", link: "https://unacdemy-pro1.madxrohitbihar-1ce.workers.dev/" },
+    { id: 71, name: "18. UNACADEMY ONLINE", tag: "Live interactive classes", img: "https://i.postimg.cc/Wz6xPX4L/image-search-1785224943445.jpg", link: "https://unacdemypro.madxrohitbihar-1ce.workers.dev/" },
+    { id: 17, name: "19. VIBRANT ACADEMY", tag: "JEE advanced coaching", img: "https://i.postimg.cc/mgx3mfCs/image-search-1785251111107.png", link: "https://learnbyakp.site/vibrant" },
+    { id: 61, name: "20. VIDYAKHUL", tag: "Online school boards", img: "https://i.postimg.cc/9Qr5MJ2g/image-search-1787482867101.png", link: "https://vidyakool.streamfiles.eu.org/" },
+    { id: 109, name: "21. TEST RANKING", tag: "Mock tests & ranking", img: "https://i.postimg.cc/DyrjSJyL/image-search-1795490544628.png", link: "https://test-ranking.madxrohitbihar-1ce.workers.dev/" },
+    {
+        id: 110,
+        name: "22. GYAN BINDU GS ACADEMY",
+        tag: "GS & competitive study",
+        img: "https://i.postimg.cc/HxxhmqSF/image-search-1795578310141.png",
+        link: "https://gyanbindu.madxrohitbihar-1ce.workers.dev/",
+        servers: [
+            { name: "Server 1", url: "https://gyanbindu.madxrohitbihar-1ce.workers.dev/" },
+            { name: "Server 2", url: "https://studyapkmod-appx.ai.studio/gyan" }
+        ]
+    },
+    {
+        id: 111,
+        name: "23. MD CLASSES",
+        tag: "Online courses & batches",
+        img: "https://i.postimg.cc/gjrynd8j/image-search-1795579769252.png",
+        link: "https://omegax.in.net/md-classes/courses"
+    }
 ];
 
-// Upcoming apps yahan add kar sakte hain
 const upcomingApps = [];
-
 let favorites = JSON.parse(localStorage.getItem('userFavs')) || [];
 
-// External URL opener (WebView & Browser safe)
-function openExternal(url) {
-    window.open(url, '_blank');
-}
-
-// Generic Outer Click Modal Closer
-function closeModalOnOuter(event, modalId) {
-    if (event.target.id === modalId) {
-        document.getElementById(modalId).classList.remove('show');
+function openExternal(url, elementId) {
+    if (elementId) {
+        const card = document.getElementById(`app-card-${elementId}`);
+        if (card) {
+            document.querySelectorAll('.app-card').forEach(c => c.classList.remove('app-clicked'));
+            card.classList.add('app-clicked');
+        }
     }
+    let finalUrl = url;
+    if (url.includes("youtu.be/") || url.includes("youtube.com/")) {
+        const separator = url.includes("?") ? "&" : "?";
+        finalUrl = `${url}${separator}vq=hd2160`;
+    }
+    window.open(finalUrl, '_blank');
 }
 
-// Server Modal Logic
-function openServerModal(app) {
-    const modal = document.getElementById('serverModal');
-    const title = document.getElementById('modalAppTitle');
-    const icon = document.getElementById('modalAppIcon');
-    const list = document.getElementById('serverOptionsList');
+function handleAppClick(appId) {
+    const app = activeApps.concat(upcomingApps).find(a => a.id === appId);
+    if (!app) return;
 
-    title.innerText = app.name;
-    icon.src = app.img || 'https://via.placeholder.com/44/0d1424/fff?text=App';
-    icon.onerror = function() {
-        this.src = 'https://via.placeholder.com/44/0d1424/fff?text=App';
-    };
+    const card = document.getElementById(`app-card-${appId}`);
+    if (card) {
+        document.querySelectorAll('.app-card').forEach(c => c.classList.remove('app-clicked'));
+        card.classList.add('app-clicked');
+    }
 
-    list.innerHTML = app.servers.map((srv, idx) => `
-        <button type="button" class="server-opt-btn" onclick="selectServer('${encodeURIComponent(srv.url)}')">
-            <span><i class="fa-solid fa-server"></i> &nbsp;${srv.name || `Server ${idx + 1}`}</span>
-            <span>Open <i class="fa-solid fa-arrow-up-right-from-square"></i></span>
-        </button>
-    `).join('');
-
-    modal.classList.add('show');
-}
-
-function selectServer(encodedUrl) {
-    const url = decodeURIComponent(encodedUrl);
-    closeServerModal();
-    openExternal(url);
+    if (app.servers && app.servers.length > 1) {
+        document.getElementById('modalAppTitle').innerText = app.name;
+        const listContainer = document.getElementById('serverOptionsList');
+        listContainer.innerHTML = app.servers.map((server, idx) => {
+            const targetUrl = server.url || server.link;
+            const serverLabel = server.name || `Server ${idx + 1}`;
+            return `
+                <div class="server-opt-btn" onclick="openExternal('${targetUrl}', ${appId}); closeServerModal();">
+                    <span><i class="fa-solid fa-server" style="color:var(--accent-cyan); margin-right:8px;"></i> ${serverLabel}</span>
+                    <i class="fa-solid fa-arrow-right" style="color:var(--text-secondary);"></i>
+                </div>
+            `;
+        }).join('');
+        document.getElementById('serverModal').style.display = 'flex';
+    } else {
+        openExternal(app.link, appId);
+    }
 }
 
 function closeServerModal() {
-    document.getElementById('serverModal').classList.remove('show');
+    document.getElementById('serverModal').style.display = 'none';
 }
 
-// Notifications Modal
-function openNotifications() {
-    document.getElementById('notificationModal').classList.add('show');
+function closeServerModalOnOuter(e) {
+    if (e.target.id === 'serverModal') closeServerModal();
 }
 
-function closeNotifications() {
-    document.getElementById('notificationModal').classList.remove('show');
-}
-
-// Theme Drawer & Switching
-function toggleThemeDrawer() {
-    const modal = document.getElementById('themeDrawerModal');
-    modal.classList.toggle('show');
-}
-
-function setAppTheme(theme) {
-    document.body.classList.remove('theme-gold-mode', 'theme-black-mode', 'theme-white-mode');
-
-    if (theme === 'gold') document.body.classList.add('theme-gold-mode');
-    if (theme === 'black') document.body.classList.add('theme-black-mode');
-    if (theme === 'white') document.body.classList.add('theme-white-mode');
-
-    localStorage.setItem('selectedAppTheme', theme);
-    document.getElementById('themeDrawerModal').classList.remove('show');
-    showToast(`Theme changed to ${theme.toUpperCase()}`);
-}
-
-// Community Popup
-function closePopup() {
-    document.getElementById('popupModal').classList.remove('show');
-    sessionStorage.setItem('popupShown', 'true');
-}
-
-// Open App Handler
-function openApp(id) {
-    const app = activeApps.find(a => a.id === id);
-    if (!app) return;
-
-    if (app.servers && app.servers.length > 1) {
-        openServerModal(app);
-    } else {
-        openExternal(app.link);
-    }
-}
-
-// Toast Notification
-let toastTimeout;
 function showToast(msg) {
     const toast = document.getElementById('toast');
+    if (!toast) return;
     toast.innerText = msg;
     toast.classList.add('show');
-    clearTimeout(toastTimeout);
-    toastTimeout = setTimeout(() => toast.classList.remove('show'), 2000);
+    setTimeout(() => toast.classList.remove('show'), 2000);
 }
 
-// Build Single Card HTML
-function createAppCardHTML(app) {
-    const isFav = favorites.includes(app.id);
-    const hasMultiServer = app.servers && app.servers.length > 1;
-    return `
-        <div class="app-card" onclick="openApp(${app.id})" data-name="${app.name.toLowerCase()}" data-tag="${(app.tag || '').toLowerCase()}">
-            <div class="app-info">
-                <img src="${app.img}" class="app-icon" alt="${app.name}" onerror="this.src='https://via.placeholder.com/48/0d1424/fff?text=App'">
-                <div class="app-details">
-                    <span class="app-name">${app.name}</span>
-                    <span class="app-tag">${app.tag || ''}</span>
-                </div>
-            </div>
-            <div class="app-actions">
-                <button type="button" class="fav-btn ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorite(${app.id})" aria-label="Favorite">
-                    <i class="fa-${isFav ? 'solid' : 'regular'} fa-heart"></i>
-                </button>
-                <button type="button" class="open-btn">
-                    ${hasMultiServer ? 'Servers ▾' : 'Open'}
-                </button>
-            </div>
-        </div>
-    `;
+function openNotifications() { document.getElementById('notificationModal').style.display = 'flex'; }
+function closeNotifications() { document.getElementById('notificationModal').style.display = 'none'; }
+function toggleThemeDrawer() {
+    const modal = document.getElementById('themeDrawerModal');
+    modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
+}
+function closeThemeDrawerOnOuter(e) { if (e.target.id === 'themeDrawerModal') toggleThemeDrawer(); }
+
+function setAppTheme(themeName) {
+    document.body.classList.remove('theme-white-mode', 'theme-black-mode', 'theme-gold-mode');
+
+    if (themeName === 'white') {
+        document.body.classList.add('theme-white-mode');
+        showToast("White Theme Activated!");
+    } else if (themeName === 'black') {
+        document.body.classList.add('theme-black-mode');
+        showToast("Black Theme Activated!");
+    } else if (themeName === 'gold') {
+        document.body.classList.add('theme-gold-mode');
+        showToast("Neon Gold Theme Activated!");
+    } else {
+        showToast("Neon Cyberpunk Theme Activated!");
+    }
+
+    updateWatermarkColor(themeName);
+    localStorage.setItem('selectedPortalTheme', themeName);
+    setTimeout(() => toggleThemeDrawer(), 250);
 }
 
-// Render Active, Upcoming & Favorites
 function renderApps() {
     const activeContainer = document.getElementById('active-apps-list');
-    document.getElementById('active-count').innerText = `${activeApps.length} Available`;
-    activeContainer.innerHTML = activeApps.map(createAppCardHTML).join('');
+    if (activeContainer) {
+        document.getElementById('active-count').innerText = `${activeApps.length} Available`;
+        activeContainer.innerHTML = activeApps.map(app => {
+            const hasMultiServer = app.servers && app.servers.length > 1;
+            const tagText = app.tag || (hasMultiServer ? 'Multiple Server Active' : 'Free Server Active');
+            return `
+                <div class="app-card" id="app-card-${app.id}" data-name="${app.name.toLowerCase()}" data-tag="${tagText.toLowerCase()}">
+                    <div class="app-info" onclick="handleAppClick(${app.id})">
+                        <img src="${app.img}" class="app-icon" alt="${app.name}" onerror="this.src='https://via.placeholder.com/48/0d1424/fff?text=App'">
+                        <div class="app-details">
+                            <span class="app-name">${app.name}</span>
+                            <span class="app-tag">${tagText}</span>
+                        </div>
+                    </div>
+                    <div class="app-actions">
+                        <button class="fav-btn ${favorites.includes(app.id) ? 'active' : ''}" onclick="toggleFavorite(${app.id})">
+                            <i class="fa-${favorites.includes(app.id) ? 'solid' : 'regular'} fa-heart"></i>
+                        </button>
+                        <span onclick="handleAppClick(${app.id})" class="open-btn">Open</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
 
-    renderUpcoming();
-    renderFavorites();
-    filterApps();
-}
-
-function renderUpcoming() {
     const upcomingContainer = document.getElementById('upcoming-apps-list');
-    document.getElementById('upcoming-count').innerText = `${upcomingApps.length} Coming Soon`;
-
-    if (upcomingApps.length === 0) {
-        upcomingContainer.innerHTML = `<div class="no-data"><i class="fa-solid fa-clock"></i> &nbsp;New servers coming soon. Stay tuned!</div>`;
-        return;
+    if (upcomingContainer) {
+        document.getElementById('upcoming-count').innerText = `${upcomingApps.length} Coming Soon`;
+        upcomingContainer.innerHTML = upcomingApps.length > 0 ? '' : `<div class="no-data">No upcoming apps available.</div>`;
     }
-    upcomingContainer.innerHTML = upcomingApps.map(createAppCardHTML).join('');
-}
 
-function renderFavorites() {
-    const favContainer = document.getElementById('favorites-apps-list');
-    const favApps = activeApps.filter(app => favorites.includes(app.id));
-    document.getElementById('fav-count').innerText = `${favApps.length} Saved`;
-
-    if (favApps.length === 0) {
-        favContainer.innerHTML = `<div class="no-data"><i class="fa-regular fa-heart"></i> &nbsp;No favorite apps saved yet. Tap the heart icon on any app!</div>`;
-        return;
-    }
-    favContainer.innerHTML = favApps.map(createAppCardHTML).join('');
+    renderFavorites();
 }
 
 function toggleFavorite(id) {
@@ -209,81 +301,89 @@ function toggleFavorite(id) {
     renderApps();
 }
 
-// Tab Switching
+function renderFavorites() {
+    const favContainer = document.getElementById('favorites-apps-list');
+    if (!favContainer) return;
+    const favApps = activeApps.concat(upcomingApps).filter(app => favorites.includes(app.id));
+    if (favApps.length === 0) {
+        favContainer.innerHTML = `<div class="no-data">No favorite apps saved yet.</div>`;
+        return;
+    }
+    favContainer.innerHTML = favApps.map(app => `
+        <div class="app-card" id="fav-card-${app.id}">
+            <div class="app-info" onclick="handleAppClick(${app.id})">
+                <img src="${app.img}" class="app-icon" alt="${app.name}" onerror="this.src='https://via.placeholder.com/48/0d1424/fff?text=App'">
+                <div class="app-details">
+                    <span class="app-name">${app.name}</span>
+                    <span class="app-tag">${app.tag || 'Saved Item'}</span>
+                </div>
+            </div>
+            <div class="app-actions">
+                <button class="fav-btn active" onclick="toggleFavorite(${app.id})"><i class="fa-solid fa-heart"></i></button>
+                <span onclick="handleAppClick(${app.id})" class="open-btn">Open</span>
+            </div>
+        </div>
+    `).join('');
+}
+
 function switchTab(tabName, element) {
     document.querySelectorAll('.bottom-nav .nav-item').forEach(item => item.classList.remove('active'));
     if (element) element.classList.add('active');
-
     ['apps', 'upcoming', 'favorites'].forEach(tab => {
-        document.getElementById(`tab-${tab}`).classList.add('hidden');
+        const targetTab = document.getElementById(`tab-${tab}`);
+        if (targetTab) targetTab.classList.add('hidden');
     });
-
-    document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+    const activeTabEl = document.getElementById(`tab-${tabName}`);
+    if (activeTabEl) activeTabEl.classList.remove('hidden');
     window.scrollTo({ top: 0, behavior: 'smooth' });
     sessionStorage.setItem('currentActiveTab', tabName);
 }
 
-// Search Filter
 function filterApps() {
-    const input = document.getElementById('searchInput');
-    const clearBtn = document.getElementById('clearSearchBtn');
-    const query = input.value.trim().toLowerCase();
-
-    if (query.length > 0) {
-        clearBtn.classList.remove('hidden');
-    } else {
-        clearBtn.classList.add('hidden');
-    }
-
-    document.querySelectorAll('#active-apps-list .app-card').forEach(card => {
+    const query = document.getElementById('searchInput').value.toLowerCase();
+    document.querySelectorAll('.app-card').forEach(card => {
         const name = card.getAttribute('data-name') || '';
         const tag = card.getAttribute('data-tag') || '';
-        const matches = name.includes(query) || tag.includes(query);
-        card.style.display = matches ? 'flex' : 'none';
+        card.style.display = (name.includes(query) || tag.includes(query)) ? 'flex' : 'none';
     });
 }
 
-function clearSearch() {
-    const input = document.getElementById('searchInput');
-    input.value = '';
-    filterApps();
-    input.focus();
-}
+document.addEventListener("contextmenu", (e) => e.preventDefault());
 
-// Initialization
+window.addEventListener('pageshow', function(event) {
+    checkAuthStatus();
+});
+
 document.addEventListener("DOMContentLoaded", () => {
-    // Load saved theme
-    const savedTheme = localStorage.getItem('selectedAppTheme');
-    if (savedTheme && savedTheme !== 'cyan') {
-        if (savedTheme === 'gold') document.body.classList.add('theme-gold-mode');
-        if (savedTheme === 'black') document.body.classList.add('theme-black-mode');
-        if (savedTheme === 'white') document.body.classList.add('theme-white-mode');
-    }
-
-    // Splash screen logic
     const splash = document.getElementById("splash-screen");
     if (!sessionStorage.getItem('splashShown')) {
         setTimeout(() => {
-            splash.classList.add("hide-splash");
+            if (splash) splash.classList.add("hide-splash");
             sessionStorage.setItem('splashShown', 'true');
-        }, 2500);
+
+            if (!sessionStorage.getItem('popupShownOnce')) {
+                const popup = document.getElementById('popupModal');
+                if (popup) popup.style.display = 'flex';
+            }
+        }, 4000);
     } else {
-        splash.style.display = 'none';
+        if (splash) splash.style.display = 'none';
+        checkAuthStatus();
     }
 
-    // Community popup logic
-    if (!sessionStorage.getItem('popupShown')) {
-        setTimeout(() => {
-            document.getElementById('popupModal').classList.add('show');
-        }, 600);
-    }
+    setTimeout(() => {
+        renderApps();
+    }, 1200);
 
-    // Restore active tab
     const savedTab = sessionStorage.getItem('currentActiveTab');
-    if (savedTab && ['apps', 'upcoming', 'favorites'].includes(savedTab)) {
+    if (savedTab) {
         const targetNav = document.getElementById(`nav-${savedTab}`);
-        switchTab(savedTab, targetNav);
+        if (targetNav) switchTab(savedTab, targetNav);
     }
-
-    renderApps();
 });
+
+function closePopup() {
+    document.getElementById('popupModal').style.display = 'none';
+    sessionStorage.setItem('popupShownOnce', 'true');
+    checkAuthStatus();
+}
