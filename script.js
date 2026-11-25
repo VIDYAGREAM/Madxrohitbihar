@@ -1,39 +1,7 @@
-function updateWatermarkColor(theme) {
-    const wm = document.getElementById('watermarkLayer');
-    let colorHex = "%2300f3ff";
-    let opacity = "0.08";
-
-    if (theme === 'white') {
-        colorHex = "%230f172a";
-        opacity = "0.07";
-    } else if (theme === 'black') {
-        colorHex = "%23ffffff";
-        opacity = "0.09";
-    } else if (theme === 'gold') {
-        colorHex = "%23f59e0b";
-        opacity = "0.08";
-    }
-
-    if (wm) {
-        wm.style.backgroundImage = `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='420' height='140'><text x='20' y='70' fill='${colorHex}' fill-opacity='${opacity}' font-size='13' font-weight='900' font-family='sans-serif' letter-spacing='2'>MODEDUZONE ✦ MADXROHITBIHAR</text></svg>")`;
-    }
-}
-
-(function() {
-    const savedTheme = localStorage.getItem('selectedPortalTheme') || 'gold';
-    if (savedTheme === 'white') {
-        document.body.classList.add('theme-white-mode');
-    } else if (savedTheme === 'black') {
-        document.body.classList.add('theme-black-mode');
-    } else if (savedTheme === 'gold') {
-        document.body.classList.add('theme-gold-mode');
-    }
-    updateWatermarkColor(savedTheme);
-})();
-
+// AroLinks Integration for Get Key
 function openAroLinks() {
     const apiToken = "0aa19e644db340e405f3b7654cdc70f70d705966";
-    const targetUrl = "https://madxkey.madxrohitbihar-1ce.workers.dev/";
+    const targetUrl = "https://newgetkey.madxrohitbihar-1ce.workers.dev/";
     const apiUrl = `https://arolinks.com/api?api=${apiToken}&url=${encodeURIComponent(targetUrl)}`;
 
     const msgDiv = document.getElementById("status-msg");
@@ -59,14 +27,15 @@ function openAroLinks() {
         });
 }
 
+// High Security Key Verification Logic (33 Characters + MAD prefix & AAP suffix)
 function verifyUserKey() {
     const userKey = document.getElementById("accessKeyInput").value.trim().toUpperCase();
     const msgDiv = document.getElementById("status-msg");
 
     const targetLen = 33;
-    if (userKey.length !== targetLen || !userKey.startsWith("MAD") || !userKey.endsWith("APN")) {
+    if (userKey.length !== targetLen || !userKey.startsWith("MAD") || !userKey.endsWith("AAP")) {
         msgDiv.style.color = "#ff4444";
-        msgDiv.innerText = "⚠ Invalid key format!";
+        msgDiv.innerText = "⚠️ Invalid key format!";
         showToast("⚠️ Invalid key format!");
         return;
     }
@@ -95,17 +64,6 @@ function verifyUserKey() {
     setTimeout(() => {
         document.getElementById("authScreenWrapper").style.display = "none";
     }, 600);
-}
-
-function checkAuthStatus() {
-    const expiryTime = localStorage.getItem("appAuthExpiry");
-    const currentTime = new Date().getTime();
-    const isVerified = expiryTime && currentTime < expiryTime;
-
-    const authWrapper = document.getElementById('authScreenWrapper');
-    if (authWrapper) {
-        authWrapper.style.display = isVerified ? 'none' : 'flex';
-    }
 }
 
 const activeApps = [
@@ -161,129 +119,145 @@ const activeApps = [
 ];
 
 const upcomingApps = [];
-let favorites = JSON.parse(localStorage.getItem('userFavs')) || [];
 
-function openExternal(url, elementId) {
-    if (elementId) {
-        const card = document.getElementById(`app-card-${elementId}`);
-        if (card) {
-            document.querySelectorAll('.app-card').forEach(c => c.classList.remove('app-clicked'));
-            card.classList.add('app-clicked');
-        }
-    }
-    let finalUrl = url;
-    if (url.includes("youtu.be/") || url.includes("youtube.com/")) {
-        const separator = url.includes("?") ? "&" : "?";
-        finalUrl = `${url}${separator}vq=hd2160`;
-    }
-    window.open(finalUrl, '_blank');
+let favorites = JSON.parse(localStorage.getItem("userFavs")) || [];
+let launchPopupShownInSession = false;
+
+function renderWatermark() {
+    const grid = document.getElementById("watermarkGrid");
+    if (!grid) return;
+    const label = "MODEDUZONE ✦ MADXROHITBIHAR";
+    const totalItems = 48;
+    grid.innerHTML = Array.from({ length: totalItems }, () =>
+        `<div class="watermark-item">${label}</div>`
+    ).join("");
 }
 
-function handleAppClick(appId) {
-    const app = activeApps.concat(upcomingApps).find(a => a.id === appId);
-    if (!app) return;
-
-    const card = document.getElementById(`app-card-${appId}`);
-    if (card) {
-        document.querySelectorAll('.app-card').forEach(c => c.classList.remove('app-clicked'));
-        card.classList.add('app-clicked');
+function openExternal(url) {
+    const win = window.open(url, "_blank", "noopener,noreferrer");
+    if (!win) {
+        window.location.href = url;
     }
-
-    if (app.servers && app.servers.length > 1) {
-        document.getElementById('modalAppTitle').innerText = app.name;
-        const listContainer = document.getElementById('serverOptionsList');
-        listContainer.innerHTML = app.servers.map((server, idx) => {
-            const targetUrl = server.url || server.link;
-            const serverLabel = server.name || `Server ${idx + 1}`;
-            return `
-                <div class="server-opt-btn" onclick="openExternal('${targetUrl}', ${appId}); closeServerModal();">
-                    <span><i class="fa-solid fa-server" style="color:var(--accent-cyan); margin-right:8px;"></i> ${serverLabel}</span>
-                    <i class="fa-solid fa-arrow-right" style="color:var(--text-secondary);"></i>
-                </div>
-            `;
-        }).join('');
-        document.getElementById('serverModal').style.display = 'flex';
-    } else {
-        openExternal(app.link, appId);
-    }
-}
-
-function closeServerModal() {
-    document.getElementById('serverModal').style.display = 'none';
-}
-
-function closeServerModalOnOuter(e) {
-    if (e.target.id === 'serverModal') closeServerModal();
 }
 
 function showToast(msg) {
-    const toast = document.getElementById('toast');
-    if (!toast) return;
+    const toast = document.getElementById("toast");
     toast.innerText = msg;
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 2000);
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 2000);
 }
 
-function openNotifications() { document.getElementById('notificationModal').style.display = 'flex'; }
-function closeNotifications() { document.getElementById('notificationModal').style.display = 'none'; }
-function toggleThemeDrawer() {
-    const modal = document.getElementById('themeDrawerModal');
-    modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
-}
-function closeThemeDrawerOnOuter(e) { if (e.target.id === 'themeDrawerModal') toggleThemeDrawer(); }
+function handleAppOpen(appId) {
+    const app = activeApps.concat(upcomingApps).find(item => item.id === appId);
+    if (!app) return;
 
-function setAppTheme(themeName) {
-    document.body.classList.remove('theme-white-mode', 'theme-black-mode', 'theme-gold-mode');
-
-    if (themeName === 'white') {
-        document.body.classList.add('theme-white-mode');
-        showToast("White Theme Activated!");
-    } else if (themeName === 'black') {
-        document.body.classList.add('theme-black-mode');
-        showToast("Black Theme Activated!");
-    } else if (themeName === 'gold') {
-        document.body.classList.add('theme-gold-mode');
-        showToast("Neon Gold Theme Activated!");
+    if (Array.isArray(app.servers) && app.servers.length > 0) {
+        openServerModal(app);
     } else {
-        showToast("Neon Cyberpunk Theme Activated!");
+        openExternal(app.link);
     }
+}
 
-    updateWatermarkColor(themeName);
-    localStorage.setItem('selectedPortalTheme', themeName);
-    setTimeout(() => toggleThemeDrawer(), 250);
+function openServerModal(app) {
+    document.getElementById("serverModalTitle").innerText = `${app.name} - Servers`;
+    const container = document.getElementById("serverListContainer");
+    container.innerHTML = app.servers.map(srv => `
+        <button class="server-btn" onclick="openExternal('${srv.url}'); closeServerModal();">
+            <span><i class="fa-solid fa-link"></i> ${srv.name}</span>
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+        </button>
+    `).join("");
+    document.getElementById("serverModal").classList.remove("hidden");
+}
+
+function closeServerModal() {
+    document.getElementById("serverModal").classList.add("hidden");
+}
+
+function closeServerOnBackdrop(e) {
+    if (e.target.id === "serverModal") closeServerModal();
+}
+
+function toggleNotifications(show) {
+    const modal = document.getElementById("notificationModal");
+    if (show) modal.classList.remove("hidden");
+    else modal.classList.add("hidden");
+}
+
+function closeNotificationsOnBackdrop(e) {
+    if (e.target.id === "notificationModal") toggleNotifications(false);
+}
+
+function toggleThemeModal(show) {
+    const modal = document.getElementById("themeModal");
+    if (show) modal.classList.remove("hidden");
+    else modal.classList.add("hidden");
+}
+
+function closeThemeOnBackdrop(e) {
+    if (e.target.id === "themeModal") toggleThemeModal(false);
+}
+
+function applyTheme(themeName) {
+    const validThemes = ["theme-white", "theme-black", "theme-gold", "theme-cyan"];
+    const selected = validThemes.includes(themeName) ? themeName : "theme-gold";
+
+    document.body.classList.remove(...validThemes);
+    document.body.classList.add(selected);
+    localStorage.setItem("selectedTheme", selected);
+
+    document.querySelectorAll(".theme-option").forEach(btn => {
+        btn.classList.toggle("active-theme", btn.getAttribute("data-theme") === selected);
+    });
+
+    toggleThemeModal(false);
 }
 
 function renderApps() {
-    const activeContainer = document.getElementById('active-apps-list');
-    if (activeContainer) {
-        document.getElementById('active-count').innerText = `${activeApps.length} Available`;
-        activeContainer.innerHTML = activeApps.map(app => {
-            const hasMultiServer = app.servers && app.servers.length > 1;
-            const tagText = app.tag || (hasMultiServer ? 'Multiple Server Active' : 'Free Server Active');
-            return `
-                <div class="app-card" id="app-card-${app.id}" data-name="${app.name.toLowerCase()}" data-tag="${tagText.toLowerCase()}">
-                    <div class="app-info" onclick="handleAppClick(${app.id})">
-                        <img src="${app.img}" class="app-icon" alt="${app.name}" onerror="this.src='https://via.placeholder.com/48/0d1424/fff?text=App'">
-                        <div class="app-details">
-                            <span class="app-name">${app.name}</span>
-                            <span class="app-tag">${tagText}</span>
-                        </div>
-                    </div>
-                    <div class="app-actions">
-                        <button class="fav-btn ${favorites.includes(app.id) ? 'active' : ''}" onclick="toggleFavorite(${app.id})">
-                            <i class="fa-${favorites.includes(app.id) ? 'solid' : 'regular'} fa-heart"></i>
-                        </button>
-                        <span onclick="handleAppClick(${app.id})" class="open-btn">Open</span>
+    const activeContainer = document.getElementById("active-apps-list");
+    document.getElementById("active-count").innerText = `${activeApps.length} Available`;
+
+    activeContainer.innerHTML = activeApps.map(app => `
+        <div class="app-card" data-name="${app.name.toLowerCase()} ${(app.tag || "").toLowerCase()}">
+            <div class="app-info">
+                <img src="${app.img}" class="app-icon" alt="${app.name}" onerror="this.src='https://via.placeholder.com/48/0d1424/fff?text=App'">
+                <div class="app-details">
+                    <span class="app-name">${app.name}</span>
+                    <span class="app-tag">${app.tag || "Free Server Active"}</span>
+                </div>
+            </div>
+            <div class="app-actions">
+                <button class="fav-btn ${favorites.includes(app.id) ? "active" : ""}" onclick="toggleFavorite(${app.id})">
+                    <i class="fa-${favorites.includes(app.id) ? "solid" : "regular"} fa-heart"></i>
+                </button>
+                <span onclick="handleAppOpen(${app.id})" class="open-btn">Open</span>
+            </div>
+        </div>
+    `).join("");
+
+    const upcomingContainer = document.getElementById("upcoming-apps-list");
+    document.getElementById("upcoming-count").innerText = `${upcomingApps.length} Coming Soon`;
+
+    if (upcomingApps.length === 0) {
+        upcomingContainer.innerHTML = `<div class="no-data">No upcoming servers right now.</div>`;
+    } else {
+        upcomingContainer.innerHTML = upcomingApps.map(app => `
+            <div class="app-card" data-name="${app.name.toLowerCase()} ${(app.tag || "").toLowerCase()}">
+                <div class="app-info">
+                    <img src="${app.img}" class="app-icon" alt="${app.name}" onerror="this.src='https://via.placeholder.com/48/0d1424/fff?text=App'">
+                    <div class="app-details">
+                        <span class="app-name">${app.name}</span>
+                        <span class="app-tag">${app.tag || "Coming Soon"}</span>
                     </div>
                 </div>
-            `;
-        }).join('');
-    }
-
-    const upcomingContainer = document.getElementById('upcoming-apps-list');
-    if (upcomingContainer) {
-        document.getElementById('upcoming-count').innerText = `${upcomingApps.length} Coming Soon`;
-        upcomingContainer.innerHTML = upcomingApps.length > 0 ? '' : `<div class="no-data">No upcoming apps available.</div>`;
+                <div class="app-actions">
+                    <button class="fav-btn ${favorites.includes(app.id) ? "active" : ""}" onclick="toggleFavorite(${app.id})">
+                        <i class="fa-${favorites.includes(app.id) ? "solid" : "regular"} fa-heart"></i>
+                    </button>
+                    <span onclick="handleAppOpen(${app.id})" class="open-btn">Open</span>
+                </div>
+            </div>
+        `).join("");
     }
 
     renderFavorites();
@@ -297,93 +271,115 @@ function toggleFavorite(id) {
         favorites.push(id);
         showToast("Added to Favorites");
     }
-    localStorage.setItem('userFavs', JSON.stringify(favorites));
+    localStorage.setItem("userFavs", JSON.stringify(favorites));
     renderApps();
 }
 
 function renderFavorites() {
-    const favContainer = document.getElementById('favorites-apps-list');
-    if (!favContainer) return;
+    const favContainer = document.getElementById("favorites-apps-list");
     const favApps = activeApps.concat(upcomingApps).filter(app => favorites.includes(app.id));
+
     if (favApps.length === 0) {
         favContainer.innerHTML = `<div class="no-data">No favorite apps saved yet.</div>`;
         return;
     }
+
     favContainer.innerHTML = favApps.map(app => `
-        <div class="app-card" id="fav-card-${app.id}">
-            <div class="app-info" onclick="handleAppClick(${app.id})">
+        <div class="app-card">
+            <div class="app-info">
                 <img src="${app.img}" class="app-icon" alt="${app.name}" onerror="this.src='https://via.placeholder.com/48/0d1424/fff?text=App'">
                 <div class="app-details">
                     <span class="app-name">${app.name}</span>
-                    <span class="app-tag">${app.tag || 'Saved Item'}</span>
+                    <span class="app-tag">${app.tag || "Saved Item"}</span>
                 </div>
             </div>
             <div class="app-actions">
-                <button class="fav-btn active" onclick="toggleFavorite(${app.id})"><i class="fa-solid fa-heart"></i></button>
-                <span onclick="handleAppClick(${app.id})" class="open-btn">Open</span>
+                <button class="fav-btn active" onclick="toggleFavorite(${app.id})">
+                    <i class="fa-solid fa-heart"></i>
+                </button>
+                <span onclick="handleAppOpen(${app.id})" class="open-btn">Open</span>
             </div>
         </div>
-    `).join('');
+    `).join("");
 }
 
 function switchTab(tabName, element) {
-    document.querySelectorAll('.bottom-nav .nav-item').forEach(item => item.classList.remove('active'));
-    if (element) element.classList.add('active');
-    ['apps', 'upcoming', 'favorites'].forEach(tab => {
-        const targetTab = document.getElementById(`tab-${tab}`);
-        if (targetTab) targetTab.classList.add('hidden');
+    document.querySelectorAll(".bottom-nav .nav-item").forEach(item => item.classList.remove("active"));
+    if (element) element.classList.add("active");
+
+    ["apps", "upcoming", "favorites"].forEach(tab => {
+        document.getElementById(`tab-${tab}`).classList.add("hidden");
     });
-    const activeTabEl = document.getElementById(`tab-${tabName}`);
-    if (activeTabEl) activeTabEl.classList.remove('hidden');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    sessionStorage.setItem('currentActiveTab', tabName);
+
+    document.getElementById(`tab-${tabName}`).classList.remove("hidden");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    sessionStorage.setItem("currentActiveTab", tabName);
 }
 
 function filterApps() {
-    const query = document.getElementById('searchInput').value.toLowerCase();
-    document.querySelectorAll('.app-card').forEach(card => {
-        const name = card.getAttribute('data-name') || '';
-        const tag = card.getAttribute('data-tag') || '';
-        card.style.display = (name.includes(query) || tag.includes(query)) ? 'flex' : 'none';
+    const query = document.getElementById("searchInput").value.toLowerCase();
+    document.querySelectorAll(".app-card").forEach(card => {
+        const name = card.getAttribute("data-name");
+        card.style.display = (!name || name.includes(query)) ? "flex" : "none";
     });
 }
 
-document.addEventListener("contextmenu", (e) => e.preventDefault());
+document.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+    return false;
+});
 
-window.addEventListener('pageshow', function(event) {
+function checkAuthStatus() {
+    const expiryTime = localStorage.getItem("appAuthExpiry");
+    const currentTime = new Date().getTime();
+    const isVerified = expiryTime && currentTime < expiryTime;
+
+    if (isVerified) {
+        document.getElementById("authScreenWrapper").style.display = "none";
+    } else {
+        document.getElementById("authScreenWrapper").style.display = "flex";
+    }
+}
+
+function showLaunchPopupOnce() {
+    if (launchPopupShownInSession) return;
+    launchPopupShownInSession = true;
+    document.getElementById("popupModal").style.display = "flex";
+}
+
+function closePopupModal() {
+    document.getElementById("popupModal").style.display = "none";
+}
+
+window.addEventListener("pageshow", function() {
     checkAuthStatus();
 });
 
 document.addEventListener("DOMContentLoaded", () => {
+    renderWatermark();
+
+    const savedTheme = localStorage.getItem("selectedTheme") || "theme-gold";
+    applyTheme(savedTheme);
+
+    checkAuthStatus();
+
     const splash = document.getElementById("splash-screen");
-    if (!sessionStorage.getItem('splashShown')) {
-        setTimeout(() => {
-            if (splash) splash.classList.add("hide-splash");
-            sessionStorage.setItem('splashShown', 'true');
-
-            if (!sessionStorage.getItem('popupShownOnce')) {
-                const popup = document.getElementById('popupModal');
-                if (popup) popup.style.display = 'flex';
-            }
-        }, 4000);
-    } else {
-        if (splash) splash.style.display = 'none';
-        checkAuthStatus();
-    }
-
     setTimeout(() => {
-        renderApps();
-    }, 1200);
+        splash.classList.add("hide-splash");
+        setTimeout(() => {
+            splash.style.display = "none";
+            showLaunchPopupOnce();
+        }, 400);
+    }, 3000);
 
-    const savedTab = sessionStorage.getItem('currentActiveTab');
-    if (savedTab) {
+    const savedTab = sessionStorage.getItem("currentActiveTab");
+    if (savedTab && ["apps", "upcoming", "favorites"].includes(savedTab)) {
         const targetNav = document.getElementById(`nav-${savedTab}`);
-        if (targetNav) switchTab(savedTab, targetNav);
+        if (targetNav) {
+            switchTab(savedTab, targetNav);
+        }
     }
 });
 
-function closePopup() {
-    document.getElementById('popupModal').style.display = 'none';
-    sessionStorage.setItem('popupShownOnce', 'true');
-    checkAuthStatus();
-}
+renderApps();
