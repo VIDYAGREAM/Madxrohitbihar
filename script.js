@@ -107,7 +107,7 @@ const activeApps = [
         link: "https://gyanbindu.madxrohitbihar-1ce.workers.dev/",
         servers: [
             { name: "Server 1", url: "https://gyanbindu.madxrohitbihar-1ce.workers.dev/" },
-            { name: "Server 2", url: "https://studyapkmod-appx.ai.studio/gyan" }
+            { name: "Server 2", url: "https://madxrohitbihar.ai.studio/gyan" }
         ]
     },
     {
